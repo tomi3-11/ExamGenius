@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamGenius MVP</title>
+</head>
+<body>
+
+    <header>
+        <h1>ExamGenius</h1>
+        <p>Create your exam paper below.</p>
+    </header>
+
+    <main>
+        <section id="exam-details">
+            <h2>1. Exam Details</h2>
+            <label for="examTitle">Exam Title:</label><br>
+            <input type="text" id="examTitle" name="examTitle" style="width: 50%;"><br><br>
+
+            <label for="examInstructions">Instructions:</label><br>
+            <textarea id="examInstructions" name="examInstructions" rows="4" style="width: 50%;"></textarea>
+        </section>
+
+        <section id="question-adder">
+            <h2>2. Add Questions</h2>
+            <label for="newQuestionText">Question Text:</label><br>
+            <textarea id="newQuestionText" rows="3" style="width: 50%;"></textarea><br><br>
+            <button type="button" id="addQuestionBtn">Add Question</button>
+        </section>
+
+        <section id="exam-preview">
+            <h2>3. Your Questions</h2>
+            <ol id="questionList"></ol>
+        </section>
+
+        <hr>
+
+        <button type="button" id="generatePdfBtn">Generate PDF</button>
+    </main>
+
+    <!-- <script src="../static/js/script.js"></script> -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

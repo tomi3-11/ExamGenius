@@ -1,0 +1,5 @@
+# Virtual env
+EGenv/
+venv
+
+__pycache__/
