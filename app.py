@@ -45,13 +45,14 @@ def generate_pdf():
         
         # Adding Unicode Font
         pdf.add_font('DejaVu', "", FONT_PATH) 
-        pdf.add_font("DejaVu", "B", FONT_PATH, uni=True) 
+        pdf.add_font("DejaVu", "B", FONT_PATH) 
         
         # adding Title
         pdf.set_font('DejaVu', "B", 16) 
         # The 'C' argument centers the text
         pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT", align='C')
         pdf.ln(10) # Add a 10mm line break
+        
         # Add instructions
         if instructions:
             pdf.set_font('DejaVu', '', 12) # Font: Arial, Regular, Size 12
@@ -69,7 +70,7 @@ def generate_pdf():
             pdf.ln(5) # Add a small break after each question.
             
         # Generate the PDF in memory, Instead of saving to a file.
-        pdf_bytes = pdf.output(dest='S').encode('latin1')
+        pdf_bytes = pdf.output(dest='S')
         pdf_buffer = io.BytesIO(pdf_bytes)
         
         # Send the PDF back to the browser
