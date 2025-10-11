@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ExamGenius MVP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
@@ -16,16 +17,16 @@
         <section id="exam-details">
             <h2>1. Exam Details</h2>
             <label for="examTitle">Exam Title:</label><br>
-            <input type="text" id="examTitle" name="examTitle" style="width: 50%;"><br><br>
+            <input type="text" id="examTitle" name="examTitle"><br><br>
 
             <label for="examInstructions">Instructions:</label><br>
-            <textarea id="examInstructions" name="examInstructions" rows="4" style="width: 50%;"></textarea>
+            <textarea id="examInstructions" name="examInstructions" rows="4"></textarea>
         </section>
 
         <section id="question-adder">
             <h2>2. Add Questions</h2>
             <label for="newQuestionText">Question Text:</label><br>
-            <textarea id="newQuestionText" rows="3" style="width: 50%;"></textarea><br><br>
+            <textarea id="newQuestionText" rows="3"></textarea><br><br>
             <button type="button" id="addQuestionBtn">Add Question</button>
         </section>
 
