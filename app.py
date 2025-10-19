@@ -111,6 +111,54 @@ def generate_docx():
         title_run.font.size = Pt(16)
         title_run.font.bold = True
         doc.add_paragraph() # Add a space
+        
+        # --- Add Instructions ---
+        if instructions:
+            doc.add_paragraph(instructions)
+            doc.add_paragraph() # Add a space
+            
+        # --- add Questions ---
+        for i, question_data in enumerate(questions, 1):
+            question_text = question_data.get('text', '')
+            answer_lines = question_data.get('lines', 0)
+            is_blank_only = question_data.get('blankOnly', False)
+            
+            # Write the question number and text
+            doc.add_paragraph(f'{i}. {question_text}')
+            
+            if answer_lines > 0:
+                if not is_blank_only:
+                    # Add "Answer:" prompt
+                    answer_prompt = doc.add_paragraph('Answer:')
+                    answer_prompt.runs[0].font.italic = True
+                    
+                # Add blank lines
+                # In DOCX, we can't just draw lines.
+                # A good subtitute is adding paragraphs of underscores.
+                line = "________________________________________________________________________"
+                for _ in range(answer_lines):
+                    doc.add_paragraph(line)
+                    
+                doc.add_paragraph()
+            else:
+                doc.add_paragraph()
+                
+        # --- Save the DOCX to memory
+        doc_buffer = io.BytesIO()
+        doc.save(doc_buffer)
+        doc_buffer.seek(0)
+        
+        # --- Send the DOCX back to the browser ---
+        return send_file(
+            doc_buffer,
+            as_attachment=True,
+            download_name='exam.docx',
+            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+        
+    except Exception as e:
+        print(f"An error occurred (DOCX): {e}")
+        return {"error": "Failed to generate DOCX."}, 500
 
 # Entry point
 if __name__ == "__main__":
