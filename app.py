@@ -4,7 +4,7 @@ from fpdf import FPDF
 import io # Used to handle the PDF in memory
 from flask_cors import CORS
 from docx import Document
-from docx.shared import Pt # To set font sizes
+from docx.shared import Pt, Inches # To set font sizes
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT, WD_TAB_LEADER # to center text
 
 # Create an instance of the Flask Application
@@ -37,24 +37,18 @@ def generate_pdf():
         # Get the JSON data sent from the Frontend
         data = request.get_json()
         
-        # Get the data from the JSON
         title = data.get('title', 'Exam Paper')
         instructions = data.get('instructions', '')
-        questions = data.get('questions', []) # This is a list of objects
+        questions = data.get('questions', [])
         
-        # Create the PDF object
-        # Assumes your custom PDF class 'PDF()' is defined elsewhere
-        # If not, change this back to pdf = FPDF()
         pdf = FPDF() 
         pdf.add_page()
         
-        # Adding Unicode Font (This assumes FONT_PATH is defined correctly)
         pdf.add_font('DejaVu', "", FONT_PATH) 
         pdf.add_font("DejaVu", "B", FONT_PATH) 
         
         # adding Title
         pdf.set_font('DejaVu', "B", 16) 
-        # --- FIX for DeprecationWarning ---
         pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT", align='C')
         
         # Add instructions
@@ -71,25 +65,40 @@ def generate_pdf():
             answer_lines = question_data.get('lines', 0)
             is_blank_only = question_data.get('blankOnly', False)
             
+            q_type = question_data.get('type', 'short_answer')
+            
             pdf.multi_cell(0, 10, f'{i}. {q_text}')
             
-            if answer_lines > 0:
-                pdf.ln(5) 
-                if not is_blank_only:
-                    pdf.set_font('DejaVu', '', 11) 
-                    pdf.cell(0, 10, "Answer:")
-                    pdf.ln(5)
-                
-                pdf.set_font('DejaVu', '', 12)
-                for _ in range(answer_lines):
-                    # --- FIX for DeprecationWarning ---
-                    pdf.cell(0, 10, "", border='B', new_x="LMARGIN", new_y="NEXT") 
-                pdf.ln(7)
-            else:
+            if q_type == 'mcq':
+                options = question_data.get('options', [])
                 pdf.ln(5)
+                
+                letter_cell_width = 15
+                
+                text_cell_width = pdf.epw - letter_cell_width
+                
+                for j, option_text in enumerate(options):
+                    letter = chr(97 + j)
+                    pdf.cell(letter_cell_width, 10, f'     {letter}.)', align='L')
+                    pdf.multi_cell(text_cell_width, 10, option_text, new_x="LMARGIN", new_y="NEXT")
+                    
+                pdf.ln(7)
+                
+            else:
+                if answer_lines > 0:
+                    pdf.ln(5) 
+                    if not is_blank_only:
+                        pdf.set_font('DejaVu', '', 11) 
+                        pdf.cell(0, 10, "Answer:")
+                        pdf.ln(5)
+                    
+                    pdf.set_font('DejaVu', '', 12)
+                    for _ in range(answer_lines):
+                        pdf.cell(0, 10, "", border='B', new_x="LMARGIN", new_y="NEXT") 
+                    pdf.ln(7)
+                else:
+                    pdf.ln(5)
             
-        # --- CRASH FIX HERE ---
-        # The 'dest' parameter is also deprecated, and we remove '.encode()'
         pdf_bytes = pdf.output() 
         pdf_buffer = io.BytesIO(pdf_bytes)
         
@@ -120,60 +129,57 @@ def generate_docx():
 
         doc = Document()
 
-        # --- SAFER METHOD for Title ---
-        # 1. Add an empty paragraph and center it
         title_paragraph = doc.add_paragraph()
         title_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        # 2. Add the text as a 'run' to that paragraph
         title_run = title_paragraph.add_run(title)
-        # 3. Style the run
         title_run.font.size = Pt(16)
         title_run.font.bold = True
-        doc.add_paragraph() # Add space
+        doc.add_paragraph()
 
-        # --- Add Instructions ---
         if instructions:
             doc.add_paragraph(instructions)
             doc.add_paragraph()
 
-        # --- Add Questions ---
-        # Get the page's writable width
         section = doc.sections[0]
-        # Page width minus left and right margins
         tab_position = section.page_width - section.left_margin - section.right_margin
         
         for i, question_data in enumerate(questions, 1):
             
+            q_type = question_data.get('type', 'short_answer')
             q_text = question_data.get('text', '')
             answer_lines = question_data.get('lines', 0)
             is_blank_only = question_data.get('blankOnly', False)
             
             doc.add_paragraph(f'{i}. {q_text}')
+            
+            if q_type == 'mcq':
+                options = question_data.get('options', [])
+                
+                for j, option_text in enumerate(options):
+                    letter = chr(97 + j)
+                    p = doc.add_paragraph()
+                    p.paragraph_format.left_indent = Inches(0.5)
+                    p.add_run(f'{letter}) {option_text}')
+                    
+                doc.add_paragraph()
 
             if answer_lines > 0:
                 if not is_blank_only:
-                    # --- SAFER METHOD for "Answer:" prompt ---
-                    # 1. Add an empty paragraph
                     answer_prompt_p = doc.add_paragraph()
-                    # 2. Add the "Answer:" text as a run
                     answer_run = answer_prompt_p.add_run("Answer:")
-                    # 3. Style the run
                     answer_run.font.italic = True
                 
                 for _ in range(answer_lines):
                     p = doc.add_paragraph()
                     p_format = p.paragraph_format
                     tab_stops = p_format.tab_stops
-                    # Add the tab stop at the right margin
                     tab_stops.add_tab_stop(tab_position, WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.HEAVY)
-                    # Add a tab character to trigger the leader line
                     p.add_run('\t')
                     
                 doc.add_paragraph()
             else:
                 doc.add_paragraph()
 
-        # --- Generate and Send the DOCX ---
         doc_buffer = io.BytesIO()
         doc.save(doc_buffer)
         doc_buffer.seek(0)
@@ -191,6 +197,4 @@ def generate_docx():
 
 # Entry point
 if __name__ == "__main__":
-    # The debug=True argument provides helpful error messages
-    # and automatically reloads the server when you save changes.
     app.run(debug=True)

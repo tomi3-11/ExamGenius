@@ -149,3 +149,60 @@ button {
 .question-options input[type="checkbox"] + label {
     font-weight: normal;
 }
+
+/* --- Styling for New Question Type Selector --- */
+
+/* Style the dropdown to match other inputs */
+select#questionType {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    margin-bottom: 20px; 
+}
+
+/* Style the new text input in the MCQ options */
+#form-mcq .question-options input[type="text"] {
+    width: auto; 
+    flex-grow: 1; 
+}
+
+/* Style the new "Add Option" button */
+#addOptionBtn {
+    background-color: #6c757d; 
+    margin-left: 10px;
+    padding: 10px 15px; 
+}
+
+#addOptionBtn:hover {
+    background-color: #5a6268;
+}
+
+/* Style the list where new options appear */
+#mcqOptionsList {
+    list-style-type: lower-alpha; 
+    padding-left: 25px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 15px;
+    padding-left: 40px;
+    margin-bottom: 15px;
+}
+
+#mcqOptionsList li {
+    padding: 5px 0;
+    font-family: monospace; 
+    font-size: 1.1em;
+}
+
+/* Style the final "Add MCQ" button */
+#addMcqQuestionBtn {
+    background-color: #007bff; 
+}
+
+#addMcqQuestionBtn:hover {
+    background-color: #0056b3;
+}
