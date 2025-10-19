@@ -5,7 +5,7 @@ import io # Used to handle the PDF in memory
 from flask_cors import CORS
 from docx import Document
 from docx.shared import Pt # To set font sizes
-from docx.enum.text import WD_ALIGN_PARAGRAPH # to center text
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT, WD_TAB_LEADER # to center text
 
 # Create an instance of the Flask Application
 app = Flask(__name__)
@@ -137,6 +137,11 @@ def generate_docx():
             doc.add_paragraph()
 
         # --- Add Questions ---
+        # Get the page's writable width
+        section = doc.section[0]
+        # Page width minus left and right margins
+        tab_position = section.page_width - section.left_margin - section.right_margin
+        
         for i, question_data in enumerate(questions, 1):
             
             q_text = question_data.get('text', '')
@@ -155,9 +160,17 @@ def generate_docx():
                     # 3. Style the run
                     answer_run.font.italic = True
                 
-                line = "____________________________________________________________"
+                # line = "____________________________________________________________"
+                # --- NEW METHOD FOR FULL-WIDTH LINES ---
                 for _ in range(answer_lines):
-                    doc.add_paragraph(line)
+                    p = doc.add_paragraph()
+                    p_format = p.paragraph_format
+                    tab_stops = p_format.tab_stops
+                    # Add the tab stop at the right margin
+                    tab_stops.add_tab_stop(tab_position, WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.UNDERSCORE)
+                    # Add a tab character to trigger the leader line
+                    p.add_run('\t')
+                    
                 doc.add_paragraph()
             else:
                 doc.add_paragraph()
