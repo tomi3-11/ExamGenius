@@ -117,3 +117,35 @@ button {
 #generateDocxBtn:hover {
     background-color: #0056b3;
 }
+
+.question-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa; 
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 15px; 
+    flex-wrap: wrap; 
+}
+
+/* This targets the inner divs holding each option */
+.question-options div {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+}
+
+/* * This overrides our main 'label' styles 
+ * for labels *inside* the options box.
+*/
+.question-options label {
+    display: inline-block; 
+    margin-bottom: 0;    
+    font-weight: bold;     
+}
+
+.question-options input[type="checkbox"] + label {
+    font-weight: normal;
+}

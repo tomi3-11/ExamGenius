@@ -16,17 +16,29 @@
     <main>
         <section id="exam-details">
             <h2>1. Exam Details</h2>
-            <label for="examTitle">Exam Title:</label><br>
-            <input type="text" id="examTitle" name="examTitle"><br><br>
+            <label for="examTitle">Exam Title:</label>
+            <input type="text" id="examTitle" name="examTitle">
 
-            <label for="examInstructions">Instructions:</label><br>
+            <label for="examInstructions">Instructions:</label>
             <textarea id="examInstructions" name="examInstructions" rows="4"></textarea>
         </section>
 
         <section id="question-adder">
             <h2>2. Add Questions</h2>
-            <label for="newQuestionText">Question Text:</label><br>
-            <textarea id="newQuestionText" rows="3"></textarea><br><br>
+            <label for="newQuestionText">Question Text:</label>
+            <textarea id="newQuestionText" rows="3"></textarea>
+
+            <div class="question-options">
+                <div>
+                    <label for="answerLines">Lines for Answer (0 for none):</label>
+                    <input type="number" id="answerLines" min="0" value="3" style="width: 80px;">
+                </div>
+                <div>
+                    <input type="checkbox" id="blankLinesOnly" name="blankLinesOnly">
+                    <label for="blankLinesOnly">Use blank lines only (no "Answer:" text)</label>
+                </div>
+            </div>
+            
             <button type="button" id="addQuestionBtn">Add Question</button>
         </section>
 
@@ -41,7 +53,6 @@
         <button type="button" id="generateDocxBtn">Generate DOCX</button>
     </main>
 
-    <!-- <script src="../static/js/script.js"></script> -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>

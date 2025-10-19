@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const examTitleInput = document.getElementById('examTitle');
     const examInstructionsInput = document.getElementById('examInstructions');
     const newQuestionTextInput = document.getElementById('newQuestionText');
-    const answerLinesInput = document.getElementById('answerLines'); // Correctly gets this
-    const blankLinesOnlyCheckbox = document.getElementById('blankLinesOnly'); // Correctly gets this
+    const answerLinesInput = document.getElementById('answerLines');
+    const blankLinesOnlyCheckbox = document.getElementById('blankLinesOnly');
     const addQuestionBtn = document.getElementById('addQuestionBtn');
     const questionList = document.getElementById('questionList');
     const generatePdfBtn = document.getElementById('generatePdfBtn');
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 4. Handle the PDF generation (No errors here) ---
+    // --- 4. Handle the PDF generation ---
     generatePdfBtn.addEventListener('click', async () => {
         const examData = {
             title: examTitleInput.value,
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. Handle the docx generation (TYPOS FIXED) ---
+    // --- 5. Handle the docx generation ---
     generateDocxBtn.addEventListener('click', async () => {
         const examData = {
             title: examTitleInput.value,
@@ -109,18 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const a = document.createElement('a');
             a.style.display = 'none';
             
-            // --- FIXES HERE ---
-            a.href = url; // Was 'a.href. url;'
+            a.href = url;
             a.download = 'exam.docx';
             document.body.appendChild(a);
-
-            a.click(); // Was missing semicolon
-
+            a.click();
             window.URL.revokeObjectURL(url);
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to generate DOCX. Check the console for more details.'); // Was missing semicolon
+            alert('Failed to generate DOCX. Check the console for more details.');
         }
     });
 });

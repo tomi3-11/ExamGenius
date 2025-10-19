@@ -40,40 +40,57 @@ def generate_pdf():
         # Get the data from the JSON
         title = data.get('title', 'Exam Paper')
         instructions = data.get('instructions', '')
-        questions = data.get('questions', [])
+        questions = data.get('questions', []) # This is a list of objects
         
         # Create the PDF object
-        pdf = PDF()
+        # Assumes your custom PDF class 'PDF()' is defined elsewhere
+        # If not, change this back to pdf = FPDF()
+        pdf = FPDF() 
         pdf.add_page()
         
-        # Adding Unicode Font
+        # Adding Unicode Font (This assumes FONT_PATH is defined correctly)
         pdf.add_font('DejaVu', "", FONT_PATH) 
         pdf.add_font("DejaVu", "B", FONT_PATH) 
         
         # adding Title
         pdf.set_font('DejaVu', "B", 16) 
-        # The 'C' argument centers the text
+        # --- FIX for DeprecationWarning ---
         pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT", align='C')
-        pdf.ln(10) # Add a 10mm line break
         
         # Add instructions
         if instructions:
-            pdf.set_font('DejaVu', '', 12) # Font: Arial, Regular, Size 12
-            # Multi_cell handles text wrapping automatically
+            pdf.set_font('DejaVu', '', 12)
             pdf.multi_cell(0, 10, instructions)
             pdf.ln(10)
             
         # Add questions
         pdf.set_font('DejaVu', '', 12)
-        for i, question in enumerate(questions, 1):
-            # Format each question with a number
-            question = question.replace("→", "->")
-            question_text = f'{i}. {question}'
-            pdf.multi_cell(0, 10, question_text)
-            pdf.ln(5) # Add a small break after each question.
+        for i, question_data in enumerate(questions, 1):
             
-        # Generate the PDF in memory, Instead of saving to a file.
-        pdf_bytes = pdf.output(dest='S')
+            q_text = question_data.get('text', '').replace("→", "->")
+            answer_lines = question_data.get('lines', 0)
+            is_blank_only = question_data.get('blankOnly', False)
+            
+            pdf.multi_cell(0, 10, f'{i}. {q_text}')
+            
+            if answer_lines > 0:
+                pdf.ln(5) 
+                if not is_blank_only:
+                    pdf.set_font('DejaVu', '', 11) 
+                    pdf.cell(0, 10, "Answer:")
+                    pdf.ln(5)
+                
+                pdf.set_font('DejaVu', '', 12)
+                for _ in range(answer_lines):
+                    # --- FIX for DeprecationWarning ---
+                    pdf.cell(0, 10, "", border='B', new_x="LMARGIN", new_y="NEXT") 
+                pdf.ln(7)
+            else:
+                pdf.ln(5)
+            
+        # --- CRASH FIX HERE ---
+        # The 'dest' parameter is also deprecated, and we remove '.encode()'
+        pdf_bytes = pdf.output() 
         pdf_buffer = io.BytesIO(pdf_bytes)
         
         # Send the PDF back to the browser
@@ -85,80 +102,81 @@ def generate_pdf():
         )
         
     except Exception as e:
-        print(f"Error occured: {e}")
+        print(f"Error occured (PDF): {e}")
         return jsonify({"error": "Failed to generate PDF"}), 500
 
 
 @app.route('/generate-docx', methods=['POST'])
 def generate_docx():
     """
-    Receives exam data, create a DOCX, and sends it back for download.
+    Receives exam data, creates a DOCX, and sends it back for download.
     """
     try:
         data = request.get_json()
+        
         title = data.get('title', 'Exam Paper')
         instructions = data.get('instructions', '')
         questions = data.get('questions', [])
-        
-        # --- Create the Document object ---
+
         doc = Document()
-        
-        # --- Add Title ---
-        title_paragraph = doc.add_paragraph(title)
+
+        # --- SAFER METHOD for Title ---
+        # 1. Add an empty paragraph and center it
+        title_paragraph = doc.add_paragraph()
         title_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        # Set font style for the title
-        title_run = title_paragraph.runs[0]
+        # 2. Add the text as a 'run' to that paragraph
+        title_run = title_paragraph.add_run(title)
+        # 3. Style the run
         title_run.font.size = Pt(16)
         title_run.font.bold = True
-        doc.add_paragraph() # Add a space
-        
+        doc.add_paragraph() # Add space
+
         # --- Add Instructions ---
         if instructions:
             doc.add_paragraph(instructions)
-            doc.add_paragraph() # Add a space
-            
-        # --- add Questions ---
+            doc.add_paragraph()
+
+        # --- Add Questions ---
         for i, question_data in enumerate(questions, 1):
-            question_text = question_data.get('text', '')
+            
+            q_text = question_data.get('text', '')
             answer_lines = question_data.get('lines', 0)
             is_blank_only = question_data.get('blankOnly', False)
             
-            # Write the question number and text
-            doc.add_paragraph(f'{i}. {question_text}')
-            
+            doc.add_paragraph(f'{i}. {q_text}')
+
             if answer_lines > 0:
                 if not is_blank_only:
-                    # Add "Answer:" prompt
-                    answer_prompt = doc.add_paragraph('Answer:')
-                    answer_prompt.runs[0].font.italic = True
-                    
-                # Add blank lines
-                # In DOCX, we can't just draw lines.
-                # A good subtitute is adding paragraphs of underscores.
-                line = "________________________________________________________________________"
+                    # --- SAFER METHOD for "Answer:" prompt ---
+                    # 1. Add an empty paragraph
+                    answer_prompt_p = doc.add_paragraph()
+                    # 2. Add the "Answer:" text as a run
+                    answer_run = answer_prompt_p.add_run("Answer:")
+                    # 3. Style the run
+                    answer_run.font.italic = True
+                
+                line = "____________________________________________________________"
                 for _ in range(answer_lines):
                     doc.add_paragraph(line)
-                    
                 doc.add_paragraph()
             else:
                 doc.add_paragraph()
-                
-        # --- Save the DOCX to memory
+
+        # --- Generate and Send the DOCX ---
         doc_buffer = io.BytesIO()
         doc.save(doc_buffer)
         doc_buffer.seek(0)
-        
-        # --- Send the DOCX back to the browser ---
+
         return send_file(
             doc_buffer,
             as_attachment=True,
             download_name='exam.docx',
             mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         )
-        
+
     except Exception as e:
         print(f"An error occurred (DOCX): {e}")
-        return {"error": "Failed to generate DOCX."}, 500
+        return jsonify({"error": "Failed to generate DOCX"}), 500
 
 # Entry point
 if __name__ == "__main__":
