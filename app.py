@@ -3,6 +3,9 @@ from flask import Flask, request, jsonify, send_file, render_template
 from fpdf import FPDF
 import io # Used to handle the PDF in memory
 from flask_cors import CORS
+from docx import Document
+from docx.shared import Pt # To set font sizes
+from docx.enum.text import WD_ALIGN_PARAGRAPH # to center text
 
 # Create an instance of the Flask Application
 app = Flask(__name__)
@@ -85,6 +88,29 @@ def generate_pdf():
         print(f"Error occured: {e}")
         return jsonify({"error": "Failed to generate PDF"}), 500
 
+
+@app.route('/generate-docx', methods=['POST'])
+def generate_docx():
+    """
+    Receives exam data, create a DOCX, and sends it back for download.
+    """
+    try:
+        data = request.get_json()
+        title = data.get('title', 'Exam Paper')
+        instructions = data.get('instructions', '')
+        questions = data.get('questions', [])
+        
+        # --- Create the Document object ---
+        doc = Document()
+        
+        # --- Add Title ---
+        title_paragraph = doc.add_paragraph(title)
+        title_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        # Set font style for the title
+        title_run = title_paragraph.runs[0]
+        title_run.font.size = Pt(16)
+        title_run.font.bold = True
+        doc.add_paragraph() # Add a space
 
 # Entry point
 if __name__ == "__main__":

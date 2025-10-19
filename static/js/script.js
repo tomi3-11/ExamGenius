@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addQuestionBtn = document.getElementById('addQuestionBtn');
     const questionList = document.getElementById('questionList');
     const generatePdfBtn = document.getElementById('generatePdfBtn');
+    const generateDocxBtn = document.getElementById('generateDocxBtn');
 
     // --- 2. Store questions in an array ---
     // This is a cleaner way to keep track of our questions.
@@ -78,4 +79,46 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Failed to generate PDF. Check the console for more details.');
         }
     });
+
+    // Handle the docx generation (NEW)
+    generateDocxBtn.addEventListener('click', async () => {
+        // Gather all the data into one object
+        const examData = {
+            title: examTitleInput.value,
+            instructions: examInstructionsInput.value,
+            questions: questions
+        };
+
+        try {
+            // Use the Fetch API to send data to our NEW backend endpoint
+            const response = await fetch('/generate-docx', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(examData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+
+            const blob = await response.blob();
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href. url;
+            a.download = 'exam.docx';
+            document.body.appendChild(a);
+
+            a.click()
+
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to generate DOCX. Check the console for more details.')
+        }
+    })
 });
