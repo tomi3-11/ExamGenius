@@ -1,11 +1,11 @@
 # importing the necessary tools from the flask framework
 from flask import Flask, request, jsonify, send_file, render_template
 from fpdf import FPDF
-import io # Used to handle the PDF in memory
+import io
 from flask_cors import CORS
 from docx import Document
-from docx.shared import Pt, Inches # To set font sizes
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT, WD_TAB_LEADER # to center text
+from docx.shared import Pt, Inches
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT, WD_TAB_LEADER
 
 # Create an instance of the Flask Application
 app = Flask(__name__)
