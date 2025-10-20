@@ -11,7 +11,7 @@ body {
 /* --- Main Container --- */
 main {
     max-width: 800px;
-    margin: 20px auto; /* Centers the content */
+    margin: 20px auto;
     padding: 25px;
     background-color: #ffffff;
     border-radius: 8px;
@@ -20,7 +20,7 @@ main {
 
 /* --- Typography --- */
 h1, h2 {
-    color: #005a9c; /* A professional blue color */
+    color: #005a9c; 
 }
 
 h1 {
@@ -54,7 +54,7 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
-    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    box-sizing: border-box;
     margin-bottom: 15px;
 }
 
@@ -71,7 +71,7 @@ button {
 }
 
 #addQuestionBtn {
-    background-color: #007bff; /* Blue */
+    background-color: #007bff; 
 }
 
 #addQuestionBtn:hover {
@@ -79,7 +79,7 @@ button {
 }
 
 #generatePdfBtn {
-    background-color: #28a745; /* Green */
+    background-color: #28a745;
     font-weight: bold;
 }
 
@@ -96,7 +96,7 @@ button {
     border: 1px solid #eee;
     border-radius: 4px;
     padding: 15px;
-    padding-left: 40px; /* Make room for numbers */
+    padding-left: 40px; 
 }
 
 #questionList li {
@@ -137,9 +137,6 @@ button {
     gap: 8px; 
 }
 
-/* * This overrides our main 'label' styles 
- * for labels *inside* the options box.
-*/
 .question-options label {
     display: inline-block; 
     margin-bottom: 0;    
@@ -150,7 +147,6 @@ button {
     font-weight: normal;
 }
 
-/* --- Styling for New Question Type Selector --- */
 
 /* Style the dropdown to match other inputs */
 select#questionType {
@@ -169,7 +165,6 @@ select#questionType {
     flex-grow: 1; 
 }
 
-/* Style the new "Add Option" button */
 #addOptionBtn {
     background-color: #6c757d; 
     margin-left: 10px;
@@ -180,7 +175,6 @@ select#questionType {
     background-color: #5a6268;
 }
 
-/* Style the list where new options appear */
 #mcqOptionsList {
     list-style-type: lower-alpha; 
     padding-left: 25px;
@@ -198,7 +192,6 @@ select#questionType {
     font-size: 1.1em;
 }
 
-/* Style the final "Add MCQ" button */
 #addMcqQuestionBtn {
     background-color: #007bff; 
 }
